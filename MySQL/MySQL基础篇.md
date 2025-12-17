@@ -500,7 +500,7 @@ select lpad(round(rand()*100000,0),6,'0');
 |            *curtime( )*             |                         返回当前时间                         |
 |              *now( )*               |                      返回当前日期和时间                      |
 |            *year(date)*             |                      获取指定date的年份                      |
-|            *moutn(date)*            |                      获取指定date的月份                      |
+|            *month(date)*            |                      获取指定date的月份                      |
 |             *day(date)*             |                      获取指定date的日期                      |
 | *date_add(date,interval expr type)* |      返回一个日期/时间值加上一个时间间隔expr后的时间值       |
 |       *datediff(date1,date2)*       | 返回起始时间date1和结束时间date2之间的天数<br>用date1-date2，结果有正负 |
