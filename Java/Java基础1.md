@@ -42,7 +42,7 @@
 - JVM (Java Virtual Machine): Java虚拟机，真正运行Java程序的地方。
 
 - 核心类库：Java自己写好的程序，给程序员自己的程序调用的。
-- JRE (Java吕time Environment): Java的运行环境。
+- JRE (Java runtime Environment): Java的运行环境。
 - JDK (Java Development Kit): Java开发工具包(包括上面所有)。
 
 3. JDK 与 JRE、JVM 的关系
@@ -763,11 +763,11 @@ public class Star {
 
   程序实际上是在内存中的 JVM虚拟机中运行的，虚拟机为了更好的执行程序，将内存分为三块：方法区、栈内存、堆内存。对象在 JVM（Java 虚拟机）中的存储位置和执行流程，核心是 **“三区域协作”**（）：
 
-  | 内存区域 |         功能作用         |                         存储内容示例                         |
-  | :------: | :----------------------: | :----------------------------------------------------------: |
-  |  方法区  |  存放 class，类模板信息  | `Student`类的定义（包含`name`、`chinese`、`math`属性的结构） |
-  |  栈内存  | 存放局部变量 和 main方法 | 局部变量：`main`方法中的`s1`、`s2`（仅存对象地址，不存实际数据）<br>方法执行：`main`方法、`printTotalScore()`方法执行时入栈，执行完出栈 |
-  |  堆内存  |    存放实际创建的对象    | `new Student()`创建的对象（包含`name`、`chinese`、`math`的具体值，默认值为`null`/0）<br>对象内置 “**类地址**”：指向方法区中`Student`类的模板，确保知道自己由哪个类生成 |
+  | 内存区域 |          功能作用          |                         存储内容示例                         |
+  | :------: | :------------------------: | :----------------------------------------------------------: |
+  |  方法区  | 存放 class文件，类模板信息 | `Student`类的定义（包含`name`、`chinese`、`math`属性的结构） |
+  |  栈内存  |  存放局部变量 和 main方法  | 局部变量：`main`方法中的`s1`、`s2`（仅存对象地址，不存实际数据）<br>方法执行：`main`方法、`printTotalScore()`方法执行时入栈，执行完出栈 |
+  |  堆内存  |     存放实际创建的对象     | `new Student()`创建的对象（包含`name`、`chinese`、`math`的具体值，默认值为`null`/0）<br>对象内置 “**类地址**”：指向方法区中`Student`类的模板，确保知道自己由哪个类生成 |
 
   <img src="C:\Users\Silence\AppData\Roaming\Typora\typora-user-images\image-20251018195607868.png" alt="image-20251018195607868" style="zoom:80%;" />
 
