@@ -1,6 +1,16 @@
 1. springMVC的工作流程
 
-SpringMVC 是基于 MVC 设计模式的轻量级 Web 框架，核心通过**前端控制器（DispatcherServlet）** 统一调度，解耦请求处理各环节，其完整工作流程可分为 9 个核心步骤，结合核心组件的交互逻辑如下：
+ SpringMVC 是一个基于 Java 的实现了 MVC 设计模式的请求驱动类型的轻量级 Web 框架，通过把 Model，View，Controller 分离，将 Web 层进行职责解耦，把复杂的 Web 应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。 简而言之，SpringMVC 就是将我们原来开发在 Servlet 中的代码拆分了，一部分由 SpringMVC 完成，一部分由我们自己完成。
+
+Spring MVC 把 Web 开发中 “重复、繁琐、易出错” 的底层操作（如参数解析、响应处理、拦截逻辑、异常处理）封装成标准化、注解化的能力，让开发者只需关注**业务逻辑**（Controller 调用 Service 处理业务），无需关心底层请求 / 响应的处理细节，大幅降低开发成本和维护成本。
+
+MVC 是 “模型 (Model)- 视图 (View)- 控制器 (Controller)” 的缩写，Spring MVC 对其做了清晰的职责划分：
+
+1. **Model（模型）**：处理业务逻辑、封装数据（如实体类、Service 层、DAO 层），负责数据的存取和处理；
+2. **View（视图）**：展示数据（如 JSP、Thymeleaf、HTML 等），仅负责界面渲染，不处理业务逻辑；
+3. **Controller（控制器）**：接收前端请求、分发处理逻辑（调用 Model）、返回结果（跳转视图或返回 JSON），是请求和响应的中间枢纽。
+
+核心通过**前端控制器（DispatcherServlet）** 统一调度，解耦请求处理各环节
 
 ## 一、核心组件
 
@@ -18,6 +28,8 @@ SpringMVC 是基于 MVC 设计模式的轻量级 Web 框架，核心通过**前�
 | HandlerInterceptor | 拦截器，可在请求处理的前后扩展逻辑（如登录校验、日志记录）   |
 
 ## 二、完整工作流程（9 步）
+
+https://i-blog.csdnimg.cn/blog_migrate/fe99fa756f3859b03994446da5de07ee.png#pic_center
 
 ### 步骤 1：客户端发送请求
 

@@ -499,7 +499,7 @@ HTML 中部分符号（如空格、`<`、`>`）会被解析为语法，需用 �
 
 
 
-第五节 网页布局
+### 第五节 网页布局
 
 一、网页整体居中布局实现
 
@@ -774,7 +774,6 @@ HTML 中用于采集用户数据的表单项标签主要有 **input**、**select
      <input type="checkbox" id="hobby1" name="hobby" value="1">
      <label for="hobby1"> 运动</label>
     ```
-    
   
 - **关键注意点**：`for` 属性值必须与表单项的 `id` 完全一致，才能实现绑定。
 
