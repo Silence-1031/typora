@@ -1,18 +1,48 @@
-1. springMVC的工作流程
+#### 一、简单介绍一下springboot框架，为什么要使用这个框架
 
- SpringMVC 是一个基于 Java 的实现了 MVC 设计模式的请求驱动类型的轻量级 Web 框架，通过把 Model，View，Controller 分离，将 Web 层进行职责解耦，把复杂的 Web 应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。 简而言之，SpringMVC 就是将我们原来开发在 Servlet 中的代码拆分了，一部分由 SpringMVC 完成，一部分由我们自己完成。
+springboot是Spring 官方在 Spring 4.x 版本后推出的最新框架，用于简化 Spring 框架开发（非替代），因为原Spring 框架有很多繁琐之处：
 
-Spring MVC 把 Web 开发中 “重复、繁琐、易出错” 的底层操作（如参数解析、响应处理、拦截逻辑、异常处理）封装成标准化、注解化的能力，让开发者只需关注**业务逻辑**（Controller 调用 Service 处理业务），无需关心底层请求 / 响应的处理细节，大幅降低开发成本和维护成本。
+- **依赖配置繁琐**：在`pom.xml`中需自行寻找项目所需依赖，还要匹配依赖的配套依赖及对应版本，否则易出现版本冲突。
+- **框架配置复杂**：使用 Spring 开发需在配置文件中进行大量 Bean 声明与配置，导致入门难度大、学习成本高。
 
-MVC 是 “模型 (Model)- 视图 (View)- 控制器 (Controller)” 的缩写，Spring MVC 对其做了清晰的职责划分：
+SpringBoot的简化也针对于这两个问题，依赖两大底层功能：
 
-1. **Model（模型）**：处理业务逻辑、封装数据（如实体类、Service 层、DAO 层），负责数据的存取和处理；
-2. **View（视图）**：展示数据（如 JSP、Thymeleaf、HTML 等），仅负责界面渲染，不处理业务逻辑；
-3. **Controller（控制器）**：接收前端请求、分发处理逻辑（调用 Model）、返回结果（跳转视图或返回 JSON），是请求和响应的中间枢纽。
+- **起步依赖**：解决 Spring 框架中依赖配置繁琐的问题，大幅简化`pom.xml`中依赖配置，对于每一个典型的应用场景，只需引入一个 starter 依赖，SpringBoot 会自动关联该场景所需的所有核心依赖（包括 jar 包、依赖版本）。比如web开发引入的核心依赖是spring-boot-starter-web，自动引入 Tomcat、SpringMVC、JSON 解析等核心依赖
+- **自动配置**：简化框架使用时 Bean 的声明与配置，**无需手动编写 XML/Java 配置**，自动完成 Spring 核心组件的注册和环境适配。引入起步依赖后，项目常见配置已默认完成，可直接使用
 
-核心通过**前端控制器（DispatcherServlet）** 统一调度，解耦请求处理各环节
 
-## 一、核心组件
+
+#### 二、spring中如何管理Bean？
+
+1. 通过注解来定义bean，让spring识别并创建：`@Component`：通用注解，标记普通 Bean（可搭配 `@Controller/@Service/@Repository` 细分，在不同业务层标注；
+
+2. 通过IoC 容器实例化 Bean：Spring IoC 容器（如 `ApplicationContext`，`beanfactory`）负责创建 Bean。默认是单例，容器中只有一个实例
+3. 通过`@Autowired`注解，按类型自动注入Bean
+
+| 注解          | 核心层 | 核心作用                   | 关键特性                  |
+| ------------- | ------ | -------------------------- | ------------------------- |
+| `@Component`  | 通用层 | 标记普通 Bean              | 无特定语义，父注解        |
+| `@Controller` | 控制层 | 处理前端请求，映射接口路径 | 结合 Spring MVC 路由      |
+| `@Service`    | 服务层 | 封装核心业务逻辑           | 通常搭配 `@Transactional` |
+| `@Repository` | 持久层 | 数据访问，交互数据库       | 自动转换数据访问异常      |
+
+
+
+#### 三、SpringMVC的工作流程
+
+ SpringMVC 是一个基于 Java 的实现了 MVC 设计模式的轻量级 Web 框架，通过把 Model，View，Controller 分离，将 Web 层的业务解耦，分成几部分来实现。并且Spring MVC 把 Web 开发中重复、繁琐的底层操作封装成标准化、注解化的能力（如参数解析、响应处理、异常处理），让开发者只需关注**业务逻辑**（Controller 调用 Service 处理业务），无需关心底层请求 / 响应的处理细节。
+
+简单来说，SpringMVC 就是将我们原来开发在 Servlet 中的代码拆分了，一部分由 SpringMVC 完成，一部分由我们自己完成。
+
+> MVC 是 “模型 (Model)- 视图 (View)- 控制器 (Controller)” 的缩写，Spring MVC 对其做了清晰的职责划分：
+>
+> 1. **Model（模型）**：处理业务逻辑、封装数据（如实体类、Service 层、DAO 层），负责数据的存取和处理；
+> 2. **View（视图）**：展示数据（如 JSP、Thymeleaf、HTML 等），仅负责界面渲染，不处理业务逻辑；
+> 3. **Controller（控制器）**：接收前端请求、分发处理逻辑（调用 Model）、返回结果（跳转视图或返回 JSON），是请求和响应的中间枢纽。
+
+核心是**前端控制器（DispatcherServlet）**,它 作为**前端控制器**，不直接处理业务，仅负责调度
+
+1. 核心组件
 
 先明确核心角色，理解流程的基础：
 
@@ -27,117 +57,85 @@ MVC 是 “模型 (Model)- 视图 (View)- 控制器 (Controller)” 的缩写，
 | View               | 视图，渲染 Model 数据并返回页面 / 响应                       |
 | HandlerInterceptor | 拦截器，可在请求处理的前后扩展逻辑（如登录校验、日志记录）   |
 
-## 二、完整工作流程（9 步）
+2. 完整工作流程（9 步）
 
-https://i-blog.csdnimg.cn/blog_migrate/fe99fa756f3859b03994446da5de07ee.png#pic_center
+![img](https://i-blog.csdnimg.cn/blog_migrate/fe99fa756f3859b03994446da5de07ee.png#pic_center)
 
-### 步骤 1：客户端发送请求
+首先浏览器 / 客户端向服务器发送 HTTP 请求（如 GET/POST），请求被 `DispatcherServlet` 拦截
 
-浏览器 / 客户端向服务器发送 HTTP 请求（如 GET/POST），请求被 `DispatcherServlet` 拦截（web.xml 或注解配置 DispatcherServlet 的拦截路径，通常为 `/`）。
+> web.xml 或注解配置 DispatcherServlet 的拦截路径，通常为 `/`。
 
-### 步骤 2：DispatcherServlet 接收请求
+`DispatcherServlet` 接收请求，将请求信息（URL、请求参数、请求方法等）封装为 `HttpServletRequest` 对象，准备分发。
 
-`DispatcherServlet` 作为前端控制器，不直接处理业务，仅负责调度：首先将请求信息（URL、请求参数、请求方法等）封装为 `HttpServletRequest` 对象，准备分发。
+调用 `HandlerMapping`，根据封装的对象，匹配到对应的 `Handler`，并返回一个包含 Handler 及拦截器的处理器执行链。
 
-### 步骤 3：HandlerMapping 匹配 Handler
+`DispatcherServlet` 根据返回的执行链，调用 `HandlerAdapter` 工厂，获取匹配的`HandlerAdapter`。
 
-`DispatcherServlet` 调用 `HandlerMapping`，`HandlerMapping` 根据请求 URL、请求方式等信息，匹配到对应的 `Handler`（即 Controller 中对应的方法），并返回一个包含 Handler 及拦截器的 `HandlerExecutionChain`（处理器执行链）。
+`HandlerAdapter` 调用目标` Handler`（也就是Controller 方法）
 
-### 步骤 4：DispatcherServlet 获取 HandlerAdapter
+将请求中携带的参数（如 @RequestParam、@RequestBody）注入 Controller 方法并执行 Controller 中的具体业务逻辑，方法执行完成后，返回 `ModelAndView` 对象，也可返回 JSON 等无视图结果。
 
-`DispatcherServlet` 根据返回的 Handler，调用 `HandlerAdapter` 工厂，获取能适配该 Handler 的 `HandlerAdapter`（SpringMVC 内置多种适配器，如 `RequestMappingHandlerAdapter` 适配注解式 Controller）。
+- 若为 JSON数据，则直接跳过视图解析，通过消息转换器将数据转为 JSON 响应。
 
-### 步骤 5：HandlerAdapter 执行 Handler（核心业务处理）
+- 若返回的是视图名（如 "index"），`DispatcherServlet` 调用 `ViewResolver`，将它解析为具体的 `View` 对象，将数据渲染到视图模板（如 JSP、HTML），生成最终的响应页面。
 
-`HandlerAdapter` 调用目标 Handler（Controller 方法），执行核心业务逻辑：
-
-- 解析请求参数（如 @RequestParam、@RequestBody）并注入 Controller 方法；
-- 执行 Controller 方法中的业务代码（调用 Service、Mapper 等）；
-- 方法执行完成后，返回 `ModelAndView` 对象（包含业务数据 Model + 视图名称 ViewName，也可返回 JSON 等无视图结果）。
-
-### 步骤 6：DispatcherServlet 接收 ModelAndView
-
-`DispatcherServlet` 接收 HandlerAdapter 返回的 `ModelAndView`，若为 JSON/REST 接口（@ResponseBody），则直接跳过视图解析，通过消息转换器（如 MappingJackson2HttpMessageConverter）将数据转为 JSON 响应。
-
-### 步骤 7：ViewResolver 解析视图
-
-若返回的是视图名（如 "index"），`DispatcherServlet` 调用 `ViewResolver`（如 InternalResourceViewResolver），根据视图名 + 前缀 / 后缀（如 /WEB-INF/views/ + index + .jsp），解析为具体的 `View` 对象（如 JSPView、ThymeleafView）。
-
-### 步骤 8：View 渲染数据
-
-`View` 对象接收 Model 中的数据，将数据渲染到视图模板（如 JSP、HTML），生成最终的响应页面。
-
-### 步骤 9：返回响应
-
-`DispatcherServlet` 将渲染后的响应（页面 / JSON 数据）通过 HttpServletResponse 返回给客户端，完成整个请求流程。
+`DispatcherServlet` 将渲染后的响应页面或json数据封装为` HttpServletResponse `对象返回给客户端，完成整个请求流程。
 
 
 
 
 
-2. 说出Spring或者SpringMVC中常用的5个注解    难度系数：⭐
+#### 四、 说出Spring或者SpringMVC中常用的5个注解
 
-- @Component  基本注解，标识一个受Spring管理的组件
-- @Controller    标识为一个表示层的组件
-- @Service       标识为一个业务层的组件
-- @Repository    标识为一个持久层的组件
-- @Autowired     自动装配
-- @RequestMapping()  完成请求映射
-- @PathVariable    映射请求URL中占位符到请求处理方法的形参
+- @Component  基本注解，标识一个受Spring管理的bean
+- @Autowired    按**类型**自动注入对应的bean
+- @RequestMapping 映射 HTTP 请求路径到方法 / 类（支持 GET/POST 等所有请求方式）
+- @PathVariable    从 URL 路径中解析参数（如 `/info/{id}` 中的 `id`）
+- @RequestBody  接收前端传递的 JSON 数据，绑定到 Java 对象（POST/PUT 请求常用）
+- @ResponseBody  将方法返回值转为 JSON 响应，标注在方法或类上
+- @Aspect   标记类为「切面类」，内部定义切入点和通知
+- @Before/@After/@Around  前置通知后置通知和环绕通知，切入点方法执行**前**/后/异常执行
+- @Transactional 标注类和方法的原子性，保证业务在执行时要么全部成功，要么全部失败
 
 
 
-3. springMVC中如何返回json数据
-
-SpringMVC 返回 JSON 数据核心步骤：
+#### 五、springMVC中如何返回json数据
 
 1. 引入 JSON 处理依赖（如 Jackson，fastjson，gson等）；
 2. 在 Controller 方法上添加`@ResponseBody`注解（或类上用`@RestController`，等价于`@Controller + @ResponseBody`）；
-3. 方法直接返回 Java 对象（如 POJO、集合），SpringMVC 会通过消息转换器（如 MappingJackson2HttpMessageConverter）自动将对象序列化为 JSON 格式响应。
+3. 方法直接返回 Java 对象（如 POJO、集合），SpringMVC 会通过消息转换器自动将对象序列化为 JSON 格式响应。
 
 
 
-4. 对spring的理解
+#### 六、对spring的理解
 
-Spring 是一款轻量级的**Java 企业级应用开发框架**，核心目标是简化 Java 开发、解耦组件依赖，为企业级应用提供一站式的解决方案
+Spring 是一款轻量级的**Java 企业级应用开发框架**，核心目标是简化 Java 开发,主要核心是：
 
-Spring 容器的主要核心是：
+- 控制反转（IOC），传统的 java 开发模式中，当需要一个对象时，我们会自己使用 new 或者 getInstance 等方法创建一个对象。而spring 容器使用了工厂模式为我们创建了所需要的对象，不需要我们自己创建了，直接调用spring 提供的对象就可以了，这是控制反转的思想。
 
-控制反转（IOC），传统的 java 开发模式中，当需要一个对象时，我们会自己使用 new 或者 getInstance 等直接或者间接调用构造方法创建一个对象。而在 spring 开发模式中，spring 容器使用了工厂模式为我们创建了所需要的对象，不需要我们自己创建了，直接调用spring 提供的对象就可以了，这是控制反转的思想。
+- 依赖注入（DI），spring 使用 javaBean 对象的 set 方法或者构造方法为我们在创建所需对象时将其属性自动设置所需要的值的过程，就是依赖注入的思想。
 
-依赖注入（DI），spring 使用 javaBean 对象的 set 方法或者带参数的构造方法为我们在创建所需对象时将其属性自动设置所需要的值的过程，就是依赖注入的思想。
-
-面向切面编程（AOP），在面向对象编程（oop）思想中，我们将事物纵向抽成一个个的对象。而在面向切面编程中，我们将一个个的对象某些类似的方面横向抽成一个切面，对这个切面进行一些如权限控制、事物管理，记录日志等公用操作处理的过程就是面向切面编程的思想。AOP 底层是动态代理，如果是接口采用 JDK 动态代理，如果是类采用CGLIB 方式实现动态代理。
+- 面向切面编程（AOP），Java利用OOP思想，将事物抽成一个个的对象。而在面向切面编程中，我们将一个个的对象类似的方面横向抽成一个切面，对这个切面进行一些统一的操作，如权限控制、事物管理，记录日志等。可以提高代码的复用性，使业务逻辑更加清晰。AOP 底层是利用动态代理实现的，如果是接口采用 JDK 动态代理，如果是类采用CGLIB 方式
 
 
 
-5. #### Spring中常用的设计模式
+> #### Spring中常用的设计模式
+>
+> **单例模式**：核心是保证一个类在应用中仅存在一个实例。Spring 容器默认将所有 Bean 管理为单例，通过 `BeanFactory/ApplicationContext `控制 Bean 的创建和复用，避免重复实例化带来的资源消耗。
+>
+> **工厂模式（简单工厂 / 工厂方法）**：用于封装对象的创建逻辑，分离对象创建与使用。Spring 中 BeanFactory 和 ApplicationContext 作为核心的 Bean 工厂，负责根据配置（注解 / XML）实例化、装配 Bean
+>
+> **代理模式（JDK 动态代理 / CGLIB 代理）**：是 Spring AOP 的核心实现方式。通过为目标 Bean 生成代理对象，在不修改原对象代码的前提下，织入日志、事务、权限校验等横切逻辑；其中 JDK 动态代理适配接口类，CGLIB 适配无接口的类。
 
-1. **单例模式**：核心是保证一个类在应用中仅存在一个实例。Spring 容器默认将所有 Bean 管理为单例，通过 BeanFactory/ApplicationContext 控制 Bean 的创建和复用，避免重复实例化带来的资源消耗。
-2. **工厂模式（简单工厂 / 工厂方法）**：用于封装对象的创建逻辑，分离对象创建与使用。Spring 中 BeanFactory 和 ApplicationContext 作为核心的 Bean 工厂，负责根据配置（注解 / XML）实例化、装配 Bean；此外 FactoryBean 接口允许开发者自定义 Bean 的创建逻辑，灵活生成复杂对象。
-3. **代理模式（JDK 动态代理 / CGLIB 代理）**：是 Spring AOP 的核心实现方式。通过为目标 Bean 生成代理对象，在不修改原对象代码的前提下，织入日志、事务、权限校验等横切逻辑；其中 JDK 动态代理适配接口类，CGLIB 适配无接口的类。
 
 
+#### 七、spring循环依赖问题
 
-6. spring循环依赖问题
+循环依赖指两个或多个 Bean 之间互相引用，形成依赖闭环，比如：A Bean 的创建依赖 B Bean，B Bean 的创建又依赖 A Bean（双向依赖）以及A→B→C→A（多 Bean 环形依赖），最终会抛出`BeanCurrentlyInCreationException`异常。
 
-## 一、什么是循环依赖
+Spring 依靠「三级缓存」机制打破循环依赖，仅能解决 **单例 Bean 的 setter / 字段注入**
 
-循环依赖指两个或多个 Bean 之间互相引用，形成依赖闭环，比如：
-
-- A Bean 的创建依赖 B Bean，B Bean 的创建又依赖 A Bean（双向依赖）；
-- A→B→C→A（多 Bean 环形依赖）。
-
-Spring 中循环依赖分三种场景：
-
-1. **构造器循环依赖**：通过构造方法注入依赖（如 A 的构造方法传 B，B 的构造方法传 A），Spring 无法解决；
-2. **字段 /setter 循环依赖**：通过成员变量或 setter 方法注入依赖，Spring 单例 Bean 可解决，原型 Bean 无法解决。
-
-## 二、Spring 解决单例字段 /setter 循环依赖的核心原理
-
-Spring 依靠「三级缓存」机制打破循环依赖，核心是提前暴露未完全初始化的 Bean 实例，而非等待 Bean 完全创建后再注入。
-
-### 1. 三级缓存定义
+> 核心是**提前暴露未完全初始化的 Bean 实例**，而非等待 Bean 完全创建后再注入。
 
 | 缓存级别 | 作用                                                         |
 | -------- | ------------------------------------------------------------ |
@@ -145,95 +143,23 @@ Spring 依靠「三级缓存」机制打破循环依赖，核心是提前暴露�
 | 二级缓存 | `earlySingletonObjects`（早期单例池）：存储**未完全初始化**的单例 Bean（提前暴露的实例） |
 | 三级缓存 | `singletonFactories`（单例工厂池）：存储创建 Bean 实例的工厂对象，用于生成早期实例 |
 
-### 2. 核心解决流程（以 A→B→A 为例）
+解决流程（以 A→B→A 为例）
 
-1. Spring 创建 A Bean：实例化 A（调用无参构造）→ 将 A 的创建工厂放入三级缓存 → 开始填充 A 的属性（发现依赖 B）；
-2. Spring 转而创建 B Bean：实例化 B → 将 B 的创建工厂放入三级缓存 → 开始填充 B 的属性（发现依赖 A）；
-3. Spring 查找 A Bean：一级缓存无 → 二级缓存无 → 从三级缓存获取 A 的工厂，生成 A 的早期实例放入二级缓存，删除三级缓存中 A 的工厂 → 将 A 的早期实例注入 B；
-4. B Bean 完成初始化，放入一级缓存 → 回到 A Bean 的属性填充，注入已初始化的 B → A Bean 完成初始化，放入一级缓存，删除二级缓存中 A 的早期实例。
+Spring 创建 A Bean,将 A 的创建工厂放入三级缓存,开始填充 A 的属性（发现依赖 B）,转而创建 B,将 B 的创建工厂放入三级缓存 ,然后开始填充 B 的属性（发现依赖 A）；Spring 查找 A Bean：一级缓存无 → 二级缓存无 → 从三级缓存获取 A 的工厂，生成 A 的**早期实例**放入二级缓存，删除三级缓存中 A 的工厂 → 将 A 的早期实例注入 B；B Bean 完成初始化，放入一级缓存 → 回到 A Bean 的属性填充，注入已初始化的 B → A Bean 完成初始化，放入一级缓存，删除二级缓存中 A 的早期实例。
 
-## 三、Spring 无法解决的循环依赖场景
+Spring 无法解决的循环依赖场景
 
 1. **构造器循环依赖**：Bean 实例化需先执行构造方法，而构造参数依赖的 Bean 尚未创建，无「提前暴露实例」的基础（实例都没创建，无法放入缓存）；
 2. **原型 Bean 循环依赖**：原型 Bean 每次获取都新建实例，Spring 不缓存原型 Bean，无三级缓存机制支撑；
-3. **单例 Bean + @PostConstruct / 初始化方法**：若循环依赖的 Bean 在 `@PostConstruct` 或 `afterPropertiesSet` 中依赖对方，此时 Bean 虽已实例化，但初始化逻辑未完成，可能导致依赖注入后调用方法报错（非 Spring 无法解决，而是业务逻辑问题）；
 4. **非单例 + 自定义作用域**：除单例外，其他自定义作用域的 Bean 无三级缓存支持，无法解决循环依赖。
 
 
 
 
 
-7. #### 介绍一下Spring bean 的生命周期、注入方式和作用域
+#### 
 
-## 一、Bean 的生命周期（核心流程）
-
-Spring Bean 从创建到销毁的完整生命周期，核心步骤可简化为：
-
-1. **实例化**：Spring 容器通过反射创建 Bean 实例（调用无参构造 / 指定构造）；
-2. **属性注入**：将依赖的 Bean / 属性值注入到当前 Bean 的字段 /setter 方法；
-3. **初始化前置**：调用 `BeanNameAware`/`BeanFactoryAware` 等 Aware 接口方法，获取容器相关信息（如 Bean 名称、容器实例）；
-4. 初始化
-   - 调用 `@PostConstruct` 注解方法（若有）；
-   - 调用 `InitializingBean` 接口的 `afterPropertiesSet()` 方法（若实现）；
-   - 执行 XML / 注解配置的自定义初始化方法；
-5. **使用阶段**：Bean 完全初始化，对外提供服务；
-6. **销毁前置**：容器关闭时，调用 `@PreDestroy` 注解方法（若有）；
-7. **销毁**：调用 `DisposableBean` 接口的 `destroy()` 方法（若实现），或执行自定义销毁方法，释放资源。
-
-## 二、Bean 的注入方式（核心 4 种）
-
-1. 字段注入：通过`@Autowired`（按类型）/`@Resource`（按名称）标注字段，简洁但耦合高、不利于单元测试；
-
-   ```java
-   @Autowired
-   private UserService userService;
-   ```
-
-   
-
-2. Setter 注入：通过
-
-   ```
-   @Autowired
-   ```
-
-   标注 setter 方法，符合 JavaBean 规范，可灵活控制注入时机；
-
-   ```java
-   @Autowired
-   public void setUserService(UserService userService) {
-       this.userService = userService;
-   }
-   ```
-
-   
-
-3. 构造器注入：推荐方式，强制依赖初始化（避免空指针），支持不可变对象，便于单元测试；
-
-   ```java
-   private final UserService userService;
-   public UserController(UserService userService) {
-       this.userService = userService;
-   }
-   ```
-
-4. 方法 / 注解配置注入：通过`@Bean`
-
-    注解在配置类方法中创建 Bean，手动注入依赖，适用于第三方组件；
-
-   ```java
-   @Configuration
-   public class Config {
-       @Bean
-       public UserService userService() {
-           return new UserService(dataSource());
-       }
-   }
-   ```
-
-   
-
-## 三、Bean 的作用域（核心 5 种）
+#### 八、Bean 的作用域（核心 5 种）
 
 Spring 定义了 Bean 的实例范围，默认单例，核心作用域：
 
@@ -241,25 +167,17 @@ Spring 定义了 Bean 的实例范围，默认单例，核心作用域：
 2. **prototype（原型）**：每次获取 Bean（如 `getBean()`）都创建新实例，容器仅负责实例化和注入，不管理销毁；
 3. **request（请求）**：仅 Web 环境有效，每个 HTTP 请求创建一个 Bean 实例，请求结束后销毁；
 4. **session（会话）**：仅 Web 环境有效，每个 HTTP 会话创建一个 Bean 实例，会话结束后销毁；
-5. **application（应用）**：仅 Web 环境有效，整个 Web 应用共享一个 Bean 实例，生命周期与 ServletContext 一致。
+5. **application（应用）**：仅 Web 环境有效，整个 Web 应用共享一个 Bean 实例
 
 
 
-8. #### Spring 的事务管理 
+#### 九、Spring 的事务管理
 
 Spring 事务管理是对 JDBC/ORM 事务的封装，核心目标是简化事务控制，保证一组数据库操作要么全部成功，要么全部回滚，遵循 ACID 特性（原子性、一致性、隔离性、持久性）。分为声明式事务和编程式事务
 
-### 1. 声明式事务（推荐）
+1. 声明式事务（推荐）:无需手动编写事务代码，通过注解 / XML 配置实现，解耦业务与事务逻辑。
 
-无需手动编写事务代码，通过注解 / XML 配置实现，解耦业务与事务逻辑。
-
-- 注解方式：核心是 
-
-  ```
-  @Transactional
-  ```
-
-  ，标注在类 / 方法上（方法优先级高于类）。
+- 注解方式：核心是 `@Transactional`，标注在类 / 方法上（方法优先级高于类）。
 
   ```java
   @Service
@@ -270,24 +188,12 @@ Spring 事务管理是对 JDBC/ORM 事务的封装，核心目标是简化事务
       }
   }
   ```
-
+  
 - **XML 方式**：通过 `<tx:advice>` 配置事务规则，`<aop:config>` 绑定切入点，适用于无注解场景。
 
-### 2. 编程式事务
+2. 编程式事务:手动控制事务生命周期，灵活性高但侵入业务代码，适用于复杂事务场景。
 
-手动控制事务生命周期，灵活性高但侵入业务代码，适用于复杂事务场景。
-
-- 核心 API：
-
-  ```
-  TransactionTemplate
-  ```
-
-  （推荐）/
-
-  ```
-  PlatformTransactionManager
-  ```
+- 核心 API：`TransactionTemplate`（推荐）/`PlatformTransactionManager`
 
   ```java
   @Autowired
@@ -303,62 +209,69 @@ Spring 事务管理是对 JDBC/ORM 事务的封装，核心目标是简化事务
 
 
 
-9. #### MyBatis中 #{}和${}的区别是什么
+#### 十、MyBatis中 #{}和${}的区别是什么
 
-1. **#{}**：参数占位符，MyBatis 会将其解析为 JDBC 的`?`占位符，自动对参数做类型转换和 SQL 注入过滤，参数会被包裹引号（如字符串参数），安全且推荐使用；
-2. **${}**：字符串拼接符，直接将参数原样拼接到 SQL 中，无类型转换和注入防护，可能引发 SQL 注入，但可用于动态表名、列名等必须直接拼接的场景。
+**#{}**：**参数占位符**，MyBatis 会将其解析为 JDBC 的`?`占位符，自动对参数做**类型转换**和 **SQL 注入过滤**，参数会被包裹引号（如字符串参数），安全且推荐使用；
+
+**${}**：**字符串拼接符**，直接将参数原样拼接到 SQL 中，无类型转换和注入防护，可能引发 SQL 注入，但可用于动态表名、列名等必须直接拼接的场景。
 
 - `SELECT * FROM user WHERE id = #{id}` → 解析为 `SELECT * FROM user WHERE id = ?`（参数安全）；
 - `SELECT * FROM ${tableName}` → 解析为 `SELECT * FROM user`（直接拼接，需确保参数可信）
 
-
-
-10. #### Mybatis 中一级缓存与二级缓存
-
-1. **一级缓存**：默认开启，基于 SqlSession（会话）级别，同一个 SqlSession 内查询相同 SQL 会缓存结果，增删改操作会清空当前 SqlSession 的一级缓存，仅作用于当前会话，关闭 SqlSession 缓存失效；
-2. **二级缓存**：需手动开启（全局配置 + Mapper 注解 / XML），基于 Mapper（命名空间）级别，多个 SqlSession 共享同一 Mapper 的缓存，查询结果先存一级缓存，SqlSession 提交 / 关闭后同步到二级缓存，增删改会清空对应 Mapper 的二级缓存，可跨会话复用，但需注意缓存数据一致性（如多表关联查询慎用）。
-
-1. 缓存的查找顺序：二级缓存 => 一级缓存 => 数据库
+> SQL 注入（SQL Injection）通过在用户输入的参数中拼接恶意 SQL 语句片段，让应用程序执行非预期的 SQL 操作，从而窃取、篡改、删除数据库数据，本质是「用户输入被当作 SQL 代码执行」
 
 
 
-11. MyBatis如何获取自动生成的(主)键值
-    在<insert>标签中使用 useGeneratedKeys和keyProperty 两个属性来获取自动生成的主键值。
+#### 十一、Mybatis 中一级缓存与二级缓存
 
-    ```java
-    <insert id="insertname" usegeneratedkeys="true" keyproperty="id">
-        insert into names (name) values (#{name}) 
-    </insert>
-    ```
+MyBatis 缓存是为了**减少数据库查询次数**，将查询结果临时存储在内存中，后续相同查询请求直接从缓存取数据，无需访问数据库，提高查询的性能
 
-    
+**一级缓存**：默认开启，基于 SqlSession（会话）级别，同一个 SqlSession 内查询相同 SQL 会缓存结果，增删改操作会清空当前 SqlSession 的一级缓存，仅作用于当前会话，关闭 SqlSession 缓存失效；
 
-12. #### 简述Mybatis的动态SQL
+**二级缓存**：需手动开启（全局配置 + Mapper 注解 / XML），基于 Mapper（命名空间）级别，多个 SqlSession 共享同一 Mapper 的缓存，查询结果先存一级缓存，SqlSession 提交 / 关闭后同步到二级缓存，增删改会清空对应 Mapper 的二级缓存，可跨会话复用，但需注意缓存数据一致性（如多表关联查询慎用），可能会出现脏读。
 
-MyBatis 动态 SQL 是基于 XML / 注解的 SQL 拼接机制，可根据参数动态生成不同 SQL 片段，解决静态 SQL 硬编码、拼接繁琐及条件判断易出错的问题，通过标签实现灵活的 SQL 构建
+缓存的查找顺序：二级缓存 => 一级缓存 => 数据库
 
-<if> : 进行条件的判断
 
-<where>：在<if>判断后的SQL语句前面添加WHERE关键字，并处理SQL语句开始位置的AND 或者OR的问题
 
-<trim>：可以在SQL语句前后进行添加指定字符 或者去掉指定字符.
+#### 十二、MyBatis如何获取自动生成的(主)键值
 
-<set>:  主要用于修改操作时出现的逗号问题
+在<insert>标签中使用 **useGeneratedKeys（是否开启自增主键获取）**和**keyProperty（绑定自增主键到实体属性）** 两个属性来获取自动生成的主键值。
 
-<choose> <when> <otherwise>：类似于java中的switch语句.在所有的条件中选择其一
+```java
+<insert id="insertname" usegeneratedkeys="true" keyproperty="id">
+    insert into names (name) values (#{name}) 
+</insert>
+```
+
+
+
+#### 十三、简述Mybatis的动态SQL
+
+MyBatis 动态 SQL 是**基于 XML / 注解**的 SQL 拼接机制，可根据参数动态生成不同 SQL 片段，通过标签实现灵活构建SQL
+
+<if> : 进行条件的判断，如何为空就不拼接
+
+<where>：在<if>判断的SQL语句前面添加WHERE关键字，自动处理 WHERE 子句的多余 AND/OR，避免 SQL 语法错误
 
 <foreach>：迭代操作
 
-13. #### Mybatis 如何完成MySQL的批量操作
+<set>: 自动处理 UPDATE 语句的多余逗号，仅拼接非空字段，自动去掉多余逗号
+
+
+
+
+
+#### 十四、Mybatis 如何完成MySQL的批量操作
 
 MyBatis完成MySQL的批量操作主要是通过<foreach>标签来拼装相应的SQL语句
 
-例如:
+`<foreach>` 的核心是通过 `collection` 定位要遍历的集合，`item` 定义元素别名，再通过 `open/close/separator` 控制拼接格式
 
 ```java
-<insert** id="insertBatch" >
+<insert id="insertBatch" >
     insert into tbl_employee(last_name,email,gender,d_id) values 
-   <foreach** collection="emps" item="curr_emp" separator=","**>
+   <foreach collection="emps" item="curr_emp" separator=","**>
       (#{curr_emp.lastName},#{curr_emp.email},#{curr_emp.gender},#{curr_emp.dept.id}) 
    </foreach>
 </insert>
@@ -366,40 +279,19 @@ MyBatis完成MySQL的批量操作主要是通过<foreach>标签来拼装相应�
 
 
 
-14. 简述SpringBoot框架
-
-SpringBoot 是基于 Spring 框架的**快速开发脚手架**，核心目标是简化 Spring 应用的搭建、配置和部署，遵循 “约定优于配置” 原则，让开发者专注业务逻辑而非框架配置。
-
-## 核心特性
-
-1. **自动配置**：核心亮点，通过 `spring-boot-autoconfigure` 模块根据类路径下的依赖、配置文件自动完成 Spring 组件的配置（如引入 spring-boot-starter-web 自动配置 SpringMVC、Tomcat 等），无需手动编写 XML/Java 配置。
-2. **起步依赖（Starter）**：将常用依赖打包为统一的 starter（如 `spring-boot-starter-web`、`spring-boot-starter-mybatis`），一键引入即可整合对应技术栈，解决依赖版本冲突问题。
-3. **内嵌服务器**：默认内嵌 Tomcat/Jetty/Undertow，无需手动部署 WAR 包，可直接通过 `java -jar` 运行应用，简化部署流程。
-4. **简化配置**：支持 `application.yml/application.properties` 统一配置，内置配置绑定、多环境配置（如 dev/test/prod），也可通过注解（`@ConfigurationProperties`）快速读取配置。
-5. **Actuator 监控**：内置监控功能，可查看应用健康状态、内存使用、接口调用情况等，便于运维和问题排查。
-6. **无代码生成 / 无 XML 配置**：完全基于注解驱动，摒弃 Spring 传统的 XML 配置，开发更简洁。
 
 
+#### 十五、Spring Boot 的核心注解是哪个 它主要由哪几个注解组成的
 
-15. #### Spring Boot 的核心注解是哪个 它主要由哪几个注解组成的 
-
-Spring Boot 最核心的注解是 `@SpringBootApplication`，它是一个**组合注解**，用于标注 Spring Boot 应用的启动类，整合了多个核心注解的功能，简化配置。
-
-## 一、核心注解：@SpringBootApplication
-
-作用：开启 Spring Boot 自动配置、组件扫描、配置类标识三大核心能力，是启动类的标配注解。
-
-## 二、核心组成注解（3 个核心）
+Spring Boot 最核心的注解是 `@SpringBootApplication`，它是一个**组合注解**，用于标注 Spring Boot 应用的启动类，整合了多个核心注解的功能
 
 1. @SpringBootConfiguration
 
    - 本质是 `@Configuration` 的派生注解，标识当前类为 Spring 配置类，允许在类中通过 `@Bean` 定义 Bean。
 
-2. @EnableAutoConfiguration
+2. @EnableAutoConfiguration（核心）
 
-   （核心）
-
-   - 开启 Spring Boot 自动配置机制：扫描类路径下的自动配置类（`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`），根据依赖、配置动态加载所需的 Bean（如引入 web 依赖则自动配置 SpringMVC、Tomcat）。
+   - 开启 Spring Boot 自动配置机制：扫描类路径下的自动配置类，根据依赖、配置动态加载所需的 Bean（如引入`spring-boot-starter-web`依赖则自动配置 SpringMVC、Tomcat）。
 
 3. @ComponentScan
 
@@ -407,31 +299,21 @@ Spring Boot 最核心的注解是 `@SpringBootApplication`，它是一个**组�
 
 
 
-16. #### Spring Boot自动配置原理是什么
+#### 十六、Spring Boot自动配置原理是什么
 
-Spring Boot 自动配置核心是基于「约定优于配置」，通过以下核心逻辑实现：
-
-1. 启动类`@EnableAutoConfiguration`注解触发自动配置，加载`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`文件中所有自动配置类；
-2. 自动配置类通过条件注解（如`@ConditionalOnClass`、`@ConditionalOnMissingBean`）判断：仅当类路径存在指定依赖、容器无对应 Bean 时，才生效配置；
-3. 结合`application.yml/properties`配置文件，覆盖自动配置默认值，最终动态生成符合场景的 Bean 配置，无需手动编写。
-
-简单说：按需加载自动配置类，通过条件判断适配环境，配置文件可自定义覆盖，实现零 / 少配置启动应用。
+Spring Boot 自动配置的核心原理是：通过`@EnableAutoConfiguration`注解触发spring boot自动配置，Spring Boot 启动时会加载`AutoConfiguration.imports`文件中声明的所有自动配置类（如`WebMvcAutoConfiguration`），这些配置类借助`@Conditional`系列条件注解（如`@ConditionalOnClass`、`@ConditionalOnMissingBean`），根据类路径下是否存在指定依赖、容器中是否已有对应 Bean 等条件，动态决定是否生效；生效后会结合`application.properties/yaml`中的配置覆盖默认属性，最终自动向 Spring 容器注册所需 Bean，实现无需手动配置即可适配不同场景的功能。
 
 
 
-17. #### SpringBoot配置文件有哪些 怎么实现多环境配置
+#### 十七、SpringBoot配置文件有哪些 怎么实现多环境配置
 
-## 一、SpringBoot 配置文件类型
+核心有两类格式：
 
-核心有两类格式，支持优先级和互补配置：
+- `application.properties`：键值对格式（`key=value`），传统格式，优先级略高于 yml；
 
-1. 核心格式
-   - `application.properties`：键值对格式（`key=value`），传统格式，优先级略高于 yml；
-   - `application.yml`/`application.yaml`：YAML 格式，层级化结构，更简洁易读（如 `spring: datasource: url: xxx`）。
+- `application.yml`/`application.yaml`：YAML 格式，层级化结构，更简洁易读（如 `spring: datasource: url: xxx`）。
 
-## 二、多环境配置实现（核心 3 种方式）
-
-### 1. 多配置文件拆分（推荐）
+多环境配置实现
 
 - 命名规则：`application-{env}.yml/properties`（如 `application-dev.yml`（开发）、`application-test.yml`（测试）、`application-prod.yml`（生产））；
 
@@ -453,11 +335,6 @@ Spring Boot 自动配置核心是基于「约定优于配置」，通过以下�
 
 
 
-18. #### SpringBoot和SpringCloud是什么关系
+#### 十八、SpringBoot和SpringCloud是什么关系
 
-SpringBoot 是 SpringCloud 的基础和核心依赖：
-
-1. SpringBoot 专注于**单个微服务应用**的快速开发（自动配置、内嵌服务器、简化配置），解决单体应用开发部署效率问题；
-2. SpringCloud 是基于 SpringBoot 构建的**微服务治理框架**，整合了注册中心、配置中心、负载均衡、熔断降级等微服务核心能力，依赖 SpringBoot 实现每个微服务的快速开发，同时提供跨服务的全局治理能力。
-
-简单说：SpringBoot 是 “微服务个体的开发脚手架”，SpringCloud 是 “微服务集群的治理体系”，Cloud 构建在 Boot 之上，无 Boot 则无法使用 Cloud 的核心功能。
+Spring Cloud 是基于 Spring Boot 构建的一套微服务架构解决方案，提供了服务注册发现、配置中心、网关、负载均衡等微服务治理所需的核心组件（如 Eureka、Nacos、Feign、Sentinel、Gateway 等）；二者的核心关系是：Spring Boot 是微服务单体应用的开发基础（解决快速开发、自动配置、依赖管理），Spring Cloud 则是在 Spring Boot 的基础上，通过封装各类微服务组件，实现多个 Spring Boot 应用的分布式协作与治理。
