@@ -117,6 +117,8 @@ Spring 是一款轻量级的**Java 企业级应用开发框架**，核心目标�
 
 - 面向切面编程（AOP），Java利用OOP思想，将事物抽成一个个的对象。而在面向切面编程中，我们将一个个的对象类似的方面横向抽成一个切面，对这个切面进行一些统一的操作，如权限控制、事物管理，记录日志等。可以提高代码的复用性，使业务逻辑更加清晰。AOP 底层是利用动态代理实现的，如果是接口采用 JDK 动态代理，如果是类采用CGLIB 方式
 
+**容器（ApplicationContext）** 是 Spring 实现 IOC/DI 的核心：负责创建、管理、销毁对象（称为 “Bean”），并处理 Bean 之间的依赖注入；
+
 
 
 > #### Spring中常用的设计模式
@@ -208,6 +210,12 @@ Spring 事务管理是对 JDBC/ORM 事务的封装，核心目标是简化事务
   ```
 
 
+
+mybatis
+
+MyBatis 是一款开源的 Java 持久层框架，是基于JDBC封装的框架，它将 SQL 语句与 Java 代码解耦（SQL 写在 XML / 注解中），通过映射配置关联 Java 实体类与数据库表字段，支持动态 SQL既保留了 SQL 编写的灵活性，又简化了数据库交互的重复代码
+
+> MyBatis 定义 SQL 有 “注解” 和 “XML” 两种方式，通过定义mapper文件来实现，在接口上添加@Mapper注解，框架会自动生成代理对象，并交给 Spring IOC 容器管理；
 
 #### 十、MyBatis中 #{}和${}的区别是什么
 
@@ -338,3 +346,17 @@ Spring Boot 自动配置的核心原理是：通过`@EnableAutoConfiguration`注
 #### 十八、SpringBoot和SpringCloud是什么关系
 
 Spring Cloud 是基于 Spring Boot 构建的一套微服务架构解决方案，提供了服务注册发现、配置中心、网关、负载均衡等微服务治理所需的核心组件（如 Eureka、Nacos、Feign、Sentinel、Gateway 等）；二者的核心关系是：Spring Boot 是微服务单体应用的开发基础（解决快速开发、自动配置、依赖管理），Spring Cloud 则是在 Spring Boot 的基础上，通过封装各类微服务组件，实现多个 Spring Boot 应用的分布式协作与治理。
+
+
+
+#### Maven
+
+Maven 是一款专门用于**管理和构建 Java 项目的工具**
+
+核心作用：
+
+1. 统一依赖管理（核心）：通过 pom.xml 统一管理项目依赖，自动从 Maven 仓库下载 Spring Boot 核心包、第三方组件（如 MyBatis、Redis 客户端等），并依托 Spring Boot 父工程统一管控依赖版本
+
+2. 标准化项目构建：提供编译、测试、打包、部署等标准化的构建生命周期，通过简单命令（如`mvn compile`/`mvn package`/`mvn install`）一键完成对应操作，可快速将 Spring Boot 项目打包为可直接运行的 JAR/WAR 包
+3. 定义一套统一的项目结构，可以方便的实现跨工具操作
+
